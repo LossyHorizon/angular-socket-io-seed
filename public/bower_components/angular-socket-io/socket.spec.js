@@ -1,5 +1,5 @@
 /*
- * angular-socket-io v0.3.0
+ * angular-socket-io v0.4.1
  * (c) 2014 Brian Ford http://briantford.com
  * License: MIT
  */
@@ -47,6 +47,46 @@ describe('socketFactory', function () {
   });
 
 
+  describe('#disconnect', function () {
+
+    it('should call the underlying socket.disconnect', function () {
+      mockIoSocket.disconnect = spy;
+      socket.disconnect();
+      expect(spy).toHaveBeenCalled();
+    });
+
+  });
+
+
+  describe('#once', function () {
+
+    it('should apply asynchronously', function () {
+      socket.once('event', spy);
+
+      mockIoSocket.emit('event');
+
+      expect(spy).not.toHaveBeenCalled();
+      $timeout.flush();
+
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should only run once', function () {
+      var counter = 0;
+      socket.once('event', function () {
+        counter += 1;
+      });
+
+      mockIoSocket.emit('event');
+      mockIoSocket.emit('event');
+      $timeout.flush();
+
+      expect(counter).toBe(1);
+    });
+
+  });
+
+
   describe('#emit', function () {
 
     it('should call the delegate socket\'s emit', function () {
@@ -55,6 +95,24 @@ describe('socketFactory', function () {
       socket.emit('event', {foo: 'bar'});
 
       expect(mockIoSocket.emit).toHaveBeenCalled();
+    });
+
+    it('should allow multiple data arguments', function () {
+      spyOn(mockIoSocket, 'emit');
+      socket.emit('event', 'x', 'y');
+      expect(mockIoSocket.emit).toHaveBeenCalledWith('event', 'x', 'y');
+    });
+
+    it('should wrap the callback with multiple data arguments', function () {
+      spyOn(mockIoSocket, 'emit');
+      socket.emit('event', 'x', 'y', spy);
+      expect(mockIoSocket.emit.mostRecentCall.args[3]).toNotBe(spy);
+
+      mockIoSocket.emit.mostRecentCall.args[3]();
+      expect(spy).not.toHaveBeenCalled();
+      $timeout.flush();
+
+      expect(spy).toHaveBeenCalled();
     });
 
   });
@@ -67,6 +125,31 @@ describe('socketFactory', function () {
       socket.removeListener('event', spy);
 
       mockIoSocket.emit('event');
+
+      expect($browser.deferredFns.length).toBe(0);
+    });
+
+  });
+
+
+  describe('#removeAllListeners', function () {
+
+    it('should not call after removing listeners for an event', function () {
+      socket.on('event', spy);
+      socket.removeAllListeners('event');
+
+      mockIoSocket.emit('event');
+
+      expect($browser.deferredFns.length).toBe(0);
+    });
+
+    it('should not call after removing all listeners', function () {
+      socket.on('event', spy);
+      socket.on('event2', spy);
+      socket.removeAllListeners();
+
+      mockIoSocket.emit('event');
+      mockIoSocket.emit('event2');
 
       expect($browser.deferredFns.length).toBe(0);
     });

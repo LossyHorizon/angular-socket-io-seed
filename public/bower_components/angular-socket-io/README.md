@@ -1,4 +1,5 @@
-# angular-socket-io
+# angular-socket-io [![Build Status](https://travis-ci.org/btford/angular-socket-io.png)](https://travis-ci.org/btford/angular-socket-io)
+
 Bower Component for using AngularJS with [Socket.IO](http://socket.io/),
 based on [this](http://briantford.com/blog/angular-socket-io.html).
 
@@ -6,7 +7,7 @@ based on [this](http://briantford.com/blog/angular-socket-io.html).
 ## Install
 
 1. `bower install angular-socket-io` or [download the zip](https://github.com/btford/angular-socket-io/archive/master.zip).
-2. Made sure the Socket.IO client lib is loaded. It's often served at `/socket.io/socket.io.js`.
+2. Make sure the Socket.IO client lib is loaded. It's often served at `/socket.io/socket.io.js`.
 3. Include the `socket.js` script provided by this component into your app.
 4. Add `btford.socket-io` as a module dependency to your app.
 
@@ -19,13 +20,13 @@ sockets that are integrated with Angular's digest cycle.
 
 ### Making a Socket Instance
 
-```
+```javascript
 // in the top-level module of the app
 angular.module('myApp', [
   'btford.socket-io',
   'myApp.MyCtrl'
 ]).
-factory('mySocket', function (socketFactory)) {
+factory('mySocket', function (socketFactory) {
   return socketFactory();
 });
 ```
@@ -37,14 +38,17 @@ other serivices within your application!
 
 Building on the example above:
 
-```
+```javascript
 // in the top-level module of the app
 angular.module('myApp', [
   'btford.socket-io',
   'myApp.MyCtrl'
 ]).
-factory('mySocket', function (socketFactory)) {
+factory('mySocket', function (socketFactory) {
   return socketFactory();
+}).
+controller('MyCtrl', function (mySocket) {
+  // ...
 });
 ```
 
@@ -60,6 +64,10 @@ Works just like the method of the same name from Socket.IO.
 
 ### `socket.removeListener`
 Takes an event name and callback.
+Works just like the method of the same name from Socket.IO.
+
+### `socket.removeAllListeners`
+Takes an event name.
 Works just like the method of the same name from Socket.IO.
 
 ### `socket.emit`
@@ -89,7 +97,7 @@ angular.module('myApp', [
   'btford.socket-io',
   'myApp.MyCtrl'
 ]).
-factory('mySocket', function (socketFactory)) {
+factory('mySocket', function (socketFactory) {
   var mySocket = socketFactory();
   mySocket.forward('error');
   return mySocket;
@@ -110,7 +118,7 @@ Avoid duplicating event handlers when a user navigates back and forth between ro
 angular.module('myMod', ['btford.socket-io']).
   controller('MyCtrl', function ($scope, socket) {
     socket.forward('someEvent', $scope);
-    scope.$on('socket:someEvent', function (ev, data) {
+    $scope.$on('socket:someEvent', function (ev, data) {
       $scope.theData = data;
     });
   });
@@ -126,7 +134,7 @@ This is useful if you want to connect on a different path, or need to hold a ref
 angular.module('myApp', [
   'btford.socket-io'
 ]).
-factory('mySocket', function (socketFactory)) {
+factory('mySocket', function (socketFactory) {
   var myIoSocket = io.connect('/some/path');
 
   mySocket = socketFactory({
@@ -182,7 +190,7 @@ In most cases, adding the following to your app should suffice:
 
 ```javascript
 // ...
-factory('socket', function (socketFactory)) {
+factory('socket', function (socketFactory) {
   return socketFactory();
 });
 // ...
@@ -196,7 +204,7 @@ Before:
 angular.module('myApp', [
   'btford.socket-io'
 ]).
-config(function (socketProvider)) {
+config(function (socketProvider) {
   socketProvider.prefix('foo~');
   socketProvider.ioSocket(io.connect('/some/path'));
 }).
@@ -213,7 +221,7 @@ After:
 angular.module('myApp', [
   'btford.socket-io'
 ]).
-factory('socket', function (socketFactory)) {
+factory('socket', function (socketFactory) {
   return socketFactory({
     prefix: 'foo~',
     ioSocket: io.connect('/some/path')
@@ -226,6 +234,10 @@ controller('MyCtrl', function (socket) {
 });
 ```
 
+## See Also
+
+* [ngSocket](https://github.com/jeffbcross/ngSocket)
+* [angular-socket.io-mock](https://github.com/nullivex/angular-socket.io-mock)
 
 ## License
 MIT

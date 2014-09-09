@@ -1,6 +1,6 @@
 {
   "name": "angular-socket-io",
-  "version": "0.3.0",
+  "version": "0.6.0",
   "main": "socket.js",
   "dependencies": {
     "angular": "~1.2.6"
@@ -9,14 +9,13 @@
     "angular-mocks": "~1.2.6"
   },
   "homepage": "https://github.com/btford/angular-socket-io",
-  "_release": "0.3.0",
+  "_release": "0.6.0",
   "_resolution": {
     "type": "version",
-    "tag": "v0.3.0",
-    "commit": "081289dbc426c87a57c141c70b2ede1e2315d894"
+    "tag": "v0.6.0",
+    "commit": "15b1a96bd08ab33c02980f62a5fefcd3b3a7cc8b"
   },
   "_source": "git://github.com/btford/angular-socket-io.git",
-  "_target": "~0.3.0",
-  "_originalSource": "angular-socket-io",
-  "_direct": true
+  "_target": "~0.6.0",
+  "_originalSource": "angular-socket-io"
 }

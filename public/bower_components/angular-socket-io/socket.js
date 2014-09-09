@@ -1,13 +1,14 @@
 /*
- * angular-socket-io v0.3.0
+ * @license
+ * angular-socket-io v0.6.0
  * (c) 2014 Brian Ford http://briantford.com
  * License: MIT
  */
 
-'use strict';
-
 angular.module('btford.socket-io', []).
   provider('socketFactory', function () {
+
+    'use strict';
 
     // when forwarding events, prefix the event name
     var defaultPrefix = 'socket:',
@@ -32,19 +33,41 @@ angular.module('btford.socket-io', []).
         var defaultScope = options.scope || $rootScope;
 
         var addListener = function (eventName, callback) {
-          socket.on(eventName, asyncAngularify(socket, callback));
+          socket.on(eventName, callback.__ng = asyncAngularify(socket, callback));
+        };
+
+        var addOnceListener = function (eventName, callback) {
+          socket.once(eventName, callback.__ng = asyncAngularify(socket, callback));
         };
 
         var wrappedSocket = {
           on: addListener,
           addListener: addListener,
+          once: addOnceListener,
 
           emit: function (eventName, data, callback) {
-            return socket.emit(eventName, data, asyncAngularify(socket, callback));
+            var lastIndex = arguments.length - 1;
+            var callback = arguments[lastIndex];
+            if(typeof callback == 'function') {
+              callback = asyncAngularify(socket, callback);
+              arguments[lastIndex] = callback;
+            }
+            return socket.emit.apply(socket, arguments);
           },
 
-          removeListener: function () {
+          removeListener: function (ev, fn) {
+            if (fn && fn.__ng) {
+              arguments[1] = fn.__ng;
+            }
             return socket.removeListener.apply(socket, arguments);
+          },
+
+          removeAllListeners: function() {
+            return socket.removeAllListeners.apply(socket, arguments);
+          },
+
+          disconnect: function (close) {
+            return socket.disconnect(close);
           },
 
           // when socket.on('someEvent', fn (data) { ... }),
